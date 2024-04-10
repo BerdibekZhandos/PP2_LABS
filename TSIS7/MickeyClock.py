@@ -1,34 +1,57 @@
 import pygame
-import sys 
-import datetime
-
+import os
+import time
 pygame.init()
-screen = pygame.display.set_mode((700,525))
-pygame.display.set_caption("The Mickey Clock")
-mickey = pygame.image.load(r"C:\Users\Ruslan\Desktop\Git\py_repo\tsis7\mickeyclock2.jpg")
-hand2 = pygame.image.load(r"C:\Users\Ruslan\Desktop\Git\py_repo\tsis7\minute_hand.png")
-hand1 = pygame.image.load(r"C:\Users\Ruslan\Desktop\Git\py_repo\tsis7\hour_hand.png")
-def angle1():
-    t = datetime.datetime.now().time()
-    return -1*(30*(t.hour%12)+(t.minute/2))
-def angle2():
-    t = datetime.datetime.now().time()
-    return -1*(6*t.minute+t.second/10)
-def rotate1():
-    rotated = pygame.transform.rotate(hand1,angle1()+90)
-    rect = rotated.get_rect(center = mickey.get_rect().center)
-    screen.blit(rotated,rect)
-def rotate2():
-    rotated = pygame.transform.rotate(hand2,angle2()+90)
-    rect = rotated.get_rect(center = mickey.get_rect().center)
-    screen.blit(rotated,rect)
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
 
-    screen.blit(mickey,(0,0))
-    rotate1()
-    rotate2()
-    pygame.display.update()
+from datetime import datetime
+
+x = datetime.now()
+minutestime = x.strftime("%M")
+secondstime = x.strftime("%S")
+print(minutestime)
+print(secondstime)
+monitor=pygame.display.set_mode((700,600))
+pygame.display.set_caption("MickeyClock")
+
+clock = pygame.time.Clock()
+HIGHT=600
+LENGHT=700
+
+mickey_image=pygame.image.load(os.path.join('MickeyClock.jpeg'))
+minutes_image=pygame.image.load(os.path.join('minutes_hand.png'))
+seconds_image=pygame.image.load(os.path.join('seconds_hand.png'))
+
+mickey = pygame.transform.scale(mickey_image,(LENGHT,HIGHT))
+minutes = pygame.transform.scale(minutes_image,(70,400))
+seconds = pygame.transform.scale(seconds_image,(120,280))
+x, y = 350, 300
+# Set the initial rotation angle to 0
+angle2 = (int(minutestime)*-1)*6
+angle = (int(secondstime)*-1)*6
+# Set the rotation speed to 1 degree per second
+
+check = True
+
+while check:
+    monitor.fill(("White"))
+    for action in pygame.event.get():
+        if action.type==pygame.QUIT:
+            check = False
+            pygame.quit()
+
+
+    rotated_seconds = pygame.transform.rotate(seconds, angle2)
+    rotated_minutes = pygame.transform.rotate(minutes, angle)
+    monitor.blit(mickey, (0,0))
+    monitor.blit(rotated_seconds, (x-int(rotated_seconds.get_width()/2), y-int(rotated_seconds.get_height()/2)))
+    monitor.blit(rotated_minutes, (x-int(rotated_minutes.get_width()/2), y-int(rotated_minutes.get_height()/2)))
+
+    pygame.display.update() 
+        # Wait for a short amount of time to simulate 1 degree per second
+    time.sleep(1)
+
+    # Increase the rotation angle by 1 degree
+    angle -= 6
+
+    if angle%360 == 0:
+        angle2-=6
